@@ -2,10 +2,10 @@
     "Plugins": [
         {
             "Type": "python",
-            "Name": "auto_reloader",
+            "Name": "usdview_auto_reloader",
             "Info": {
                 "Types": {
-                    "auto_reloader.AutoReloaderContainer": {
+                    "usdview_auto_reloader.AutoReloaderContainer": {
                         "bases": ["pxr.Usdviewq.plugin.PluginContainer"],
                         "displayName": "Reload usdview automatically"
                     }

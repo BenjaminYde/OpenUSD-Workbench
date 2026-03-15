@@ -26,6 +26,7 @@ RUN --mount=type=cache,target=/var/cache/apt \
         gpg-agent \
         # cpp
         build-essential \
+        ccache \
         autoconf \
         automake \
         dos2unix \
@@ -104,8 +105,11 @@ RUN \
         clang-tidy-${CLANG_MAJOR_VERSION} \
     && \
     # Create symlinks so you can just run `clang++`
-    ln -s /usr/bin/clang-${CLANG_MAJOR_VERSION} /usr/bin/clang && \
+ln -s /usr/bin/clang-${CLANG_MAJOR_VERSION} /usr/bin/clang && \
     ln -s /usr/bin/clang++-${CLANG_MAJOR_VERSION} /usr/bin/clang++ && \
+    ln -s /usr/bin/clangd-${CLANG_MAJOR_VERSION} /usr/bin/clangd && \
+    ln -s /usr/bin/clang-format-${CLANG_MAJOR_VERSION} /usr/bin/clang-format && \
+    ln -s /usr/bin/clang-tidy-${CLANG_MAJOR_VERSION} /usr/bin/clang-tidy && \
     # cleanup
     apt -qq clean && \
     apt -qq autoclean && \
@@ -192,6 +196,7 @@ RUN apt-get update && apt-get install -y --install-recommends \
         libvulkan-dev \
         mesa-vulkan-drivers \
         vulkan-tools \
+        libshaderc-dev \
     && \
     # cleanup
     apt -qq clean && \
