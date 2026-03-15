@@ -1,0 +1,20 @@
+#usda 1.0
+
+def Cube "Cube1"
+{
+    double size = 1
+
+    def Cube "Cube2"
+    {
+        double size = 0.5
+        double3 xformOp:translate = (0, 0.8500000238418579, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate"]
+
+        def Cube "Cube3"
+        {
+            double size = 0.25
+            double3 xformOp:translate = (0, 0.4749999940395355, 0)
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+        }
+    }
+}

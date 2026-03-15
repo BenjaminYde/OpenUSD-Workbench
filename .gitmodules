@@ -1,0 +1,4 @@
+[submodule "submodules/OpenUSD"]
+	path = submodules/OpenUSD
+	url = https://github.com/PixarAnimationStudios/OpenUSD.git
+	branch = release

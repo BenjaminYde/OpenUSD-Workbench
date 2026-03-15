@@ -1,0 +1,25 @@
+services:
+  devcontainer:
+    stdin_open: true
+    tty: true
+    build:
+      context: ../..
+      dockerfile: .devcontainer/cpp_ubuntu24_x64/Dockerfile
+    volumes:
+      # workspace
+      - ../..:/home/developer/OpenUSD-Workbench
+      # host related
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev:/dev
+    environment:
+      - DISPLAY=$DISPLAY
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    privileged: true
+    network_mode: host

@@ -1,0 +1,10 @@
+#usda 1.0
+
+over "Cube1"
+{
+    over "Cube2"
+    {
+        double3 xformOp:translate = (0, 0.796082846191088, 0)
+    }
+}
+

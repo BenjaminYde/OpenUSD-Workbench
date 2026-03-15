@@ -1,0 +1,35 @@
+{
+	"name": "openusd-workbench_cpp_ubuntu24_x64",
+	"dockerComposeFile": "docker-compose.yaml",
+	"service": "devcontainer",
+	"workspaceFolder": "/home/developer/OpenUSD-Workbench",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cpptools-themes",
+				"ms-vscode.cpptools",
+				"franneck94.c-cpp-runner",
+				"ms-vscode.cmake-tools",
+				"mhutchie.git-graph",
+				"vadimcn.vscode-lldb",
+				"marlongerson.jetbrains-icons",
+				"llvm-vs-code-extensions.vscode-clangd",
+				"llvm-vs-code-extensions.lldb-dap"
+			],
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"terminal.integrated.profiles.linux": {
+					"Azure Cloud Shell (Bash)": null,
+					"Azure Cloud Shell (PowerShell)": null,
+					"JavaScript Debug Terminal": null,
+					"bash": null,
+					"zsh": {
+						"path": "/usr/bin/zsh"
+					}
+				}
+			}
+		}
+	},
+	"initializeCommand": "xhost +local:docker",
+	"onCreateCommand": ".devcontainer/cpp_ubuntu24_x64/boostrap_container.sh"
+}

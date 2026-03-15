@@ -1,0 +1,231 @@
+usage: build_usd.py [-h] [-n] [-v | -q] [-j JOBS] [--build BUILD]
+                    [--build-variant {debug,release,relwithdebuginfo}]
+                    [--ignore-paths [IGNORE_PATHS ...]]
+                    [--build-target {wasm,wasm64}]
+                    [--build-args [BUILD_ARGS ...]]
+                    [--cmake-build-args CMAKE_BUILD_ARGS]
+                    [--build-python-info PYTHON_EXECUTABLE PYTHON_INCLUDE_DIR PYTHON_LIBRARY PYTHON_VERSION]
+                    [--force FORCE_BUILD] [--force-all]
+                    [--generator GENERATOR] [--toolset TOOLSET]
+                    [--use-cxx11-abi {0,1}] [--src SRC] [--inst INST]
+                    [--build-shared | --build-monolithic]
+                    [--tests | --no-tests] [--examples | --no-examples]
+                    [--tutorials | --no-tutorials] [--tools | --no-tools]
+                    [--docs | --no-docs] [--python-docs | --no-python-docs]
+                    [--python | --no-python]
+                    [--prefer-safety-over-speed | --prefer-speed-over-safety]
+                    [--usdValidation | --no-usdValidation]
+                    [--debug-python | --no-debug-python]
+                    [--imaging | --usd-imaging | --no-imaging]
+                    [--ptex | --no-ptex] [--openvdb | --no-openvdb]
+                    [--usdview | --no-usdview] [--zlib | --no-zlib]
+                    [--vulkan | --no-vulkan] [--embree | --no-embree]
+                    [--prman | --no-prman] [--prman-location PRMAN_LOCATION]
+                    [--openimageio | --no-openimageio]
+                    [--opencolorio | --no-opencolorio]
+                    [--alembic | --no-alembic] [--draco | --no-draco]
+                    [--draco-location DRACO_LOCATION]
+                    [--materialx | --no-materialx] [--onetbb | --no-onetbb]
+                    [--mayapy-tests | --no-mayapy-tests]
+                    [--mayapy-location MAYAPY_LOCATION]
+                    [--animx-tests | --no-animx-tests]
+                    install_dir
+
+Installation Script for USD
+
+Builds and installs USD and 3rd-party dependencies to specified location.
+
+The `build_usd.py` script by default downloads and installs the zlib library
+when necessary on platforms other than Linux. For those platforms, this behavior
+may be overridden by supplying the `--no-zlib` command line option. If this
+option is used, then the dependencies of OpenUSD which use zlib must be able to
+discover the user supplied zlib in the build environment via the means of cmake's
+`find_package` utility.
+
+- Libraries:
+The following is a list of libraries that this script will download and build
+as needed. These names can be used to identify libraries for various script
+options, like --force or --build-args.
+
+Alembic AnimX Blosc Draco Embree JPEG MaterialX OpenColorIO OpenEXR OpenImageIO OpenSubdiv OpenVDB PNG Ptex TBB TIFF USD boost oneTBB zlib
+
+- Downloading Libraries:
+If curl or powershell (on Windows) are installed and located in PATH, they
+will be used to download dependencies. Otherwise, a built-in downloader will 
+be used.
+
+- Specifying Custom Build Arguments:
+Users may specify custom build arguments for libraries using the --build-args
+option. This values for this option must take the form <library name>,<option>. 
+For example:
+
+build_usd.py --build-args boost,cxxflags=... USD,-DPXR_STRICT_BUILD_MODE=ON ...
+build_usd.py --build-args USD,"-DPXR_STRICT_BUILD_MODE=ON -DPXR_HEADLESS_TEST_MODE=ON" ...
+
+These arguments will be passed directly to the build system for the specified 
+library. Multiple quotes may be needed to ensure arguments are passed on 
+exactly as desired. Users must ensure these arguments are suitable for the
+specified library and do not conflict with other options, otherwise build 
+errors may occur.
+
+- Embedded Build Targets
+When cross compiling for an embedded target operating system, e.g. iOS, the
+following components are disabled: python, tools, tests, examples, tutorials,
+opencolorio, openimageio, openvdb, vulkan.
+
+- Python Versions and DCC Plugins:
+Some DCCs may ship with and run using their own version of Python. In that case,
+it is important that USD and the plugins for that DCC are built using the DCC's
+version of Python and not the system version. This can be done by running
+build_usd.py using the DCC's version of Python.
+
+If build_usd.py does not automatically detect the necessary information, the flag
+--build-python-info can be used to explicitly pass in the Python that you want
+USD to use to build the Python bindings with. This flag takes 4 arguments: 
+Python executable, Python include directory Python library and Python version.
+
+Note that this is primarily an issue on MacOS, where a DCC's version of Python
+is likely to conflict with the version provided by the system.
+
+- C++11 ABI Compatibility:
+On Linux, the --use-cxx11-abi parameter can be used to specify whether to use
+the C++11 ABI for libstdc++ when building USD and any dependencies. The value
+given to this parameter will be used to define _GLIBCXX_USE_CXX11_ABI for
+all builds.
+
+If this parameter is not specified, the compiler's default ABI will be used.
+
+For more details see:
+https://gcc.gnu.org/onlinedocs/libstdc++/manual/using_dual_abi.html
+
+positional arguments:
+  install_dir           Directory where USD will be installed
+
+options:
+  -h, --help            show this help message and exit
+  -n, --dry_run         Only summarize what would happen
+  -v, --verbose         Increase verbosity level (1-3)
+  -q, --quiet           Suppress all output except for error messages
+
+Build Options:
+  -j JOBS, --jobs JOBS  Number of build jobs to run in parallel. (default: #
+                        of processors [32])
+  --build BUILD         Build directory for USD and 3rd-party dependencies
+                        (default: <install_dir>/build)
+  --build-variant {debug,release,relwithdebuginfo}
+                        Build variant for USD and 3rd-party dependencies.
+                        (default: release)
+  --ignore-paths [IGNORE_PATHS ...]
+                        Paths for CMake to ignore when configuring projects.
+  --build-target {wasm,wasm64}
+                        Build target for cross compilation. (default: )
+  --build-args [BUILD_ARGS ...]
+                        Custom arguments to pass to build system when building
+                        libraries (see docs above)
+  --cmake-build-args CMAKE_BUILD_ARGS
+                        Custom arguments to pass to all builds that use cmake;
+                        a single string, similar to the args passed for a
+                        single dependency in --build-args
+  --build-python-info PYTHON_EXECUTABLE PYTHON_INCLUDE_DIR PYTHON_LIBRARY PYTHON_VERSION
+                        Specify a custom python to use during build
+  --force FORCE_BUILD   Force download and build of specified library (see
+                        docs above)
+  --force-all           Force download and build of all libraries
+  --generator GENERATOR
+                        CMake generator to use when building libraries with
+                        cmake
+  --toolset TOOLSET     CMake toolset to use when building libraries with
+                        cmake
+  --use-cxx11-abi {0,1}
+                        Use C++11 ABI for libstdc++. (see docs above)
+
+3rd Party Dependency Build Options:
+  --src SRC             Directory where dependencies will be downloaded
+                        (default: <install_dir>/src)
+  --inst INST           Directory where dependencies will be installed
+                        (default: <install_dir>)
+
+USD Options:
+  --build-shared        Build individual shared libraries (default)
+  --build-monolithic    Build a single monolithic shared library
+  --tests               Build unit tests
+  --no-tests            Do not build unit tests (default)
+  --examples            Build examples (default)
+  --no-examples         Do not build examples
+  --tutorials           Build tutorials (default)
+  --no-tutorials        Do not build tutorials
+  --tools               Build USD tools (default)
+  --no-tools            Do not build USD tools
+  --docs                Build C++ documentation
+  --no-docs             Do not build C++ documentation (default)
+  --python-docs         Build Python docs
+  --no-python-docs      Do not build Python documentation (default)
+  --python              Build python based components (default)
+  --no-python           Do not build python based components
+  --prefer-safety-over-speed
+                        Enable extra safety checks (which may negatively
+                        impact performance) against malformed input files
+                        (default)
+  --prefer-speed-over-safety
+                        Disable performance-impacting safety checks against
+                        malformed input files
+  --usdValidation       Build USD Validation library and validators (default)
+  --no-usdValidation    Do not build USD Validation library and validators
+  --debug-python        Define Boost Python Debug if your Python library comes
+                        with Debugging symbols.
+  --no-debug-python     Don't define Boost Python Debug if your Python library
+                        comes with Debugging symbols.
+
+Imaging and USD Imaging Options:
+  --imaging             Build imaging component
+  --usd-imaging         Build imaging and USD imaging components (default)
+  --no-imaging          Do not build imaging or USD imaging components
+  --ptex                Enable Ptex support in imaging
+  --no-ptex             Disable Ptex support in imaging (default)
+  --openvdb             Enable OpenVDB support in imaging
+  --no-openvdb          Disable OpenVDB support in imaging (default)
+  --usdview             Build usdview (default)
+  --no-usdview          Do not build usdview
+  --zlib                Install zlib on behalf of dependencies (default)
+  --no-zlib             Do not install zlib for dependencies
+  --vulkan              Enable Vulkan support
+  --no-vulkan           Disable Vulkan support (default)
+
+Imaging Plugin Options:
+  --embree              Build Embree sample imaging plugin
+  --no-embree           Do not build Embree sample imaging plugin (default)
+  --prman               Build Pixar's RenderMan imaging plugin
+  --no-prman            Do not build Pixar's RenderMan imaging plugin
+                        (default)
+  --prman-location PRMAN_LOCATION
+                        Directory where Pixar's RenderMan is installed.
+  --openimageio         Build OpenImageIO plugin for USD
+  --no-openimageio      Do not build OpenImageIO plugin for USD (default)
+  --opencolorio         Build OpenColorIO plugin for USD
+  --no-opencolorio      Do not build OpenColorIO plugin for USD (default)
+
+Alembic Plugin Options:
+  --alembic             Build Alembic plugin for USD
+  --no-alembic          Do not build Alembic plugin for USD (default)
+
+Draco Plugin Options:
+  --draco               Build Draco plugin for USD
+  --no-draco            Do not build Draco plugin for USD (default)
+  --draco-location DRACO_LOCATION
+                        Directory where Draco is installed.
+
+MaterialX Options:
+  --materialx           Enable MaterialX support (default)
+  --no-materialx        Disable MaterialX support
+
+TBB Options:
+  --onetbb              Build using oneTBB instead of TBB
+  --no-onetbb           Build using TBB (default)
+
+Spline Test Options:
+  --mayapy-tests        Build mayapy spline tests
+  --no-mayapy-tests     Do not build mayapy spline tests (default)
+  --mayapy-location MAYAPY_LOCATION
+                        Directory where mayapy is installed
+  --animx-tests         Build AnimX spline tests
+  --no-animx-tests      Do not build AnimX spline tests (default)
