@@ -6,15 +6,12 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ms-vscode.cpptools-themes",
-				"ms-vscode.cpptools",
-				"franneck94.c-cpp-runner",
 				"ms-vscode.cmake-tools",
 				"mhutchie.git-graph",
-				"vadimcn.vscode-lldb",
 				"marlongerson.jetbrains-icons",
 				"llvm-vs-code-extensions.vscode-clangd",
-				"llvm-vs-code-extensions.lldb-dap"
+				"llvm-vs-code-extensions.lldb-dap",
+				"xaver.clang-format"
 			],
 			"settings": {
 				"terminal.integrated.defaultProfile.linux": "zsh",
