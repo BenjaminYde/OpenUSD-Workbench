@@ -18,6 +18,7 @@ echo "Starting build and streaming log ($LOG_FILE)..."
 python3 ./build_scripts/build_usd.py \
     -v \
     --vulkan --no-tutorials --no-examples \
+    --build-monolithic \
     --cmake-build-args "-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++" \
     ./build &
 
