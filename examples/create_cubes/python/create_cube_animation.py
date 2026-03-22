@@ -2,6 +2,7 @@ import pxr.Usd
 import pxr.UsdGeom
 import pxr.Gf
 import time
+import pxr
 
 def create_usd_file(filename):
     # Create a new stage with ASCII format
@@ -15,7 +16,7 @@ def create_usd_file(filename):
     stage.GetRootLayer().Save()
     return stage
 
-def animate_cube(stage, velocity=0.1, num_frames=100, frame_duration=1.0):
+def animate_cube(stage: pxr.Usd.Stage, velocity=0.1, num_frames=100, frame_duration=1.0):
     # Setup transform operations for the cube
     xform = pxr.UsdGeom.Xformable(stage.GetPrimAtPath('/movingCube'))
     translate_op = xform.AddTranslateOp()

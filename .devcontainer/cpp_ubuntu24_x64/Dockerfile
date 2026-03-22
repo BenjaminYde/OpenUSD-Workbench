@@ -1,7 +1,7 @@
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive 
 ARG DEVELOPER_UID=1000
-LABEL Author="Vintecc"
+LABEL Author="BenjaminYde"
 
 # Install Development APT Packages
 RUN --mount=type=cache,target=/var/cache/apt \

@@ -1,0 +1,32 @@
+{
+	"name": "openusd-workbench_python_ubuntu24_x64",
+	"dockerComposeFile": "docker-compose.yaml",
+	"service": "devcontainer",
+	"workspaceFolder": "/home/developer/OpenUSD-Workbench",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"mhutchie.git-graph",
+				"marlongerson.jetbrains-icons",
+				"ms-python.python",
+				"ms-vscode-remote.remote-containers",
+				"ms-vscode-remote.remote-ssh",
+			],
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "zsh",
+				"terminal.integrated.profiles.linux": {
+					"Azure Cloud Shell (Bash)": null,
+					"Azure Cloud Shell (PowerShell)": null,
+					"JavaScript Debug Terminal": null,
+					"bash": null,
+					"zsh": {
+						"path": "/usr/bin/zsh"
+					}
+				},
+				"python.analysis.stubPath": "/home/developer/OpenUSD-Workbench/python/stubs"
+			}
+		}
+	},
+	"initializeCommand": ".devcontainer/python_ubuntu24_x64/boostrap_host.sh",
+	"onCreateCommand": ".devcontainer/python_ubuntu24_x64/boostrap_container.sh"
+}
