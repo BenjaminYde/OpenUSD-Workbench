@@ -14,4 +14,4 @@ source ./shellrc
 
 # python: generate stubs
 cd $REPO_DIR
-./python/tools/stubs/generate_usd_stubs.sh
+./python/tools/stubs_v2/generate_usd_stubs.sh
