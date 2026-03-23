@@ -1,1 +1,3 @@
+# ignore stubs in current dir only
 stubs/
+!*/stubs/

@@ -140,6 +140,7 @@ IMPLICIT_CONVERSIONS: dict[str, list[str]] = {
 }
 
 # Known return types for dunder methods (always applied, independent of class)
+# Dunder methods whose return type is fixed regardless of class
 DUNDER_RETURN_TYPES: dict[str, str] = {
     "__init__": "None",
     "__repr__": "str",
@@ -157,33 +158,23 @@ DUNDER_RETURN_TYPES: dict[str, str] = {
     "__float__": "float",
     "__contains__": "bool",
     "__iter__": "Iterator",
-    "__neg__": "Any",
-    "__pos__": "Any",
-    "__abs__": "Any",
-    "__add__": "Any",
-    "__radd__": "Any",
-    "__iadd__": "Any",
-    "__sub__": "Any",
-    "__rsub__": "Any",
-    "__isub__": "Any",
-    "__mul__": "Any",
-    "__rmul__": "Any",
-    "__imul__": "Any",
-    "__truediv__": "Any",
-    "__rtruediv__": "Any",
-    "__itruediv__": "Any",
-    "__and__": "Any",
-    "__or__": "Any",
-    "__xor__": "Any",
-    "__invert__": "Any",
-    "__enter__": "Any",
     "__exit__": "None",
-    "__call__": "Any",
-    "__getitem__": "Any",
     "__setitem__": "None",
     "__delitem__": "None",
-    "__next__": "Any",
 }
+
+# Arithmetic/unary/context dunders that return Self when inside a class,
+# or Any at module level.
+SELF_DUNDERS: frozenset[str] = frozenset({
+    "__neg__", "__pos__", "__abs__", "__invert__",
+    "__add__", "__radd__", "__iadd__",
+    "__sub__", "__rsub__", "__isub__",
+    "__mul__", "__rmul__", "__imul__",
+    "__truediv__", "__rtruediv__", "__itruediv__",
+    "__floordiv__", "__mod__", "__pow__",
+    "__and__", "__or__", "__xor__",
+    "__enter__",
+})
 
 # Known return types for specific method names (applied to all classes)
 KNOWN_RETURN_TYPES: dict[str, str] = {
@@ -207,6 +198,46 @@ KNOWN_RETURN_TYPES: dict[str, str] = {
     # Surface faces
     "ComputeSurfaceFaces": "pxr.Vt.IntArray",
     "FindInvertedElements": "pxr.Vt.IntArray",
+    # Common string-returning getters
+    "GetDescription": "str",
+    "GetColorSpace": "str",
+    "GetDisplayGroup": "str",
+    "GetDisplayName": "str",
+    "GetDocumentation": "str",
+    "GetComment": "str",
+    "GetRoleName": "str",
+    "GetKind": "str",
+    "GetNamespaceDelimiter": "str",
+    # Metadata (values are arbitrary USD values)
+    "GetAllMetadata": "dict[str, Any]",
+    "GetAllAuthoredMetadata": "dict[str, Any]",
+    "GetCustomData": "dict[str, Any]",
+    "GetAssetInfo": "dict[str, Any]",
+    "GetMetadata": "Any",
+    "GetMetadataByDictKey": "Any",
+    "GetCustomDataByKey": "Any",
+    "GetAssetInfoByKey": "Any",
+    # Stage / layer
+    "GetStage": "pxr.Usd.Stage",
+    "GetLayer": "pxr.Sdf.Layer",
+    # Paths
+    "GetPrimPath": "pxr.Sdf.Path",
+    "GetConnections": "list[pxr.Sdf.Path]",
+    "GetTargets": "list[pxr.Sdf.Path]",
+    "GetForwardedTargets": "list[pxr.Sdf.Path]",
+    # Spec stack
+    "GetPropertyStack": "list[pxr.Sdf.PropertySpec]",
+    "GetResolveInfo": "pxr.Usd.ResolveInfo",
+    "GetVariability": "pxr.Sdf.Variability",
+    # Relationship / connection edits
+    "AddConnection": "bool",
+    "RemoveConnection": "bool",
+    "AddTarget": "bool",
+    "RemoveTarget": "bool",
+    # Nested display groups
+    "GetNestedDisplayGroups": "list[str]",
+    # Spline (Ts)
+    "GetSpline": "pxr.Ts.Spline",
 }
 
 # Schema methods that return the schema class itself
@@ -382,10 +413,32 @@ RETURN_TYPE_PATTERNS: list[tuple[str, str]] = [
     (r"^Get\w*Count$", "int"),
     (r"^GetElementSize$", "int"),
     (r"^GetUnauthoredValuesIndex$", "int"),
+    # --- Time bracketing ---
+    (r"^GetBracketingTimeSamples$", "tuple[bool, float, float]"),
+    (r"^GetUnionedTimeSamples$", "list[float]"),
+    (r"^GetUnionedTimeSamplesInInterval$", "list[float]"),
+    # --- Spec/layer stacks ---
+    (r"^GetPropertyStackWithLayerOffsets$", "list[tuple[pxr.Sdf.PropertySpec, pxr.Sdf.LayerOffset]]"),
+    # --- Broad property/name lists ---
+    (r"^GetAll\w+Names$", "list[str]"),
+    (r"^GetAuthoredProperties$", "list[pxr.Usd.Property]"),
 ]
 
 # Module-level functions with known return types
 MODULE_FUNC_RETURN_TYPES: dict[str, str] = {
+    # pxr.Usd module-level functions
+    "pxr.Usd.GetMajorVersion": "int",
+    "pxr.Usd.GetMinorVersion": "int",
+    "pxr.Usd.GetPatchVersion": "int",
+    "pxr.Usd.GetVersion": "tuple[int, int, int]",
+    "pxr.Usd.Describe": "str",
+    "pxr.Usd.FlattenLayerStack": "pxr.Sdf.Layer",
+    "pxr.Usd.FlattenLayerStackAdvanced": "pxr.Sdf.Layer",
+    "pxr.Usd.FlattenLayerStackResolveAssetPath": "str",
+    "pxr.Usd.FlattenLayerStackResolveAssetPathAdvanced": "str",
+    "pxr.Usd.ComputeIncludedPathsFromCollection": "set[pxr.Sdf.Path]",
+    "pxr.Usd.ComputePathExpressionFromCollectionMembershipQueryRuleMap": "pxr.Sdf.PathExpression",
+    # pxr.UsdGeom module-level functions
     "pxr.UsdGeom.GetFallbackUpAxis": "str",
     "pxr.UsdGeom.GetStageUpAxis": "str",
     "pxr.UsdGeom.SetStageUpAxis": "bool",
@@ -545,9 +598,13 @@ def resolve_return_type(
 ) -> str:
     """Determine the best return type for a method."""
 
-    # 0. Dunder methods always have known types
+    # 0. Dunder methods with fixed return types
     if name in DUNDER_RETURN_TYPES:
         return DUNDER_RETURN_TYPES[name]
+
+    # 0b. Arithmetic/unary dunders -> Self in class context, Any otherwise
+    if name in SELF_DUNDERS:
+        return "Self" if full_class_path else "Any"
 
     # 1. Explicit full-path overrides (highest priority)
     if full_func_path and full_func_path in MODULE_FUNC_RETURN_TYPES:
@@ -933,7 +990,7 @@ def generate_module_stub(module_name: str) -> str | None:
 
     lines = [
         "from __future__ import annotations",
-        "from typing import Any, ClassVar, Iterator, overload",
+        "from typing import Any, ClassVar, Iterator, Self, overload",
         "",
     ]
 
