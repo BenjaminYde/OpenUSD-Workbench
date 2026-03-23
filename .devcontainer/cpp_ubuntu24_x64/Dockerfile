@@ -1,3 +1,6 @@
+FROM doxygen-1.16.1:latest AS doxygen
+
+# UBUNTU BASE
 FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive 
 ARG DEVELOPER_UID=1000
@@ -221,6 +224,11 @@ COPY --from=ghcr.io/astral-sh/uv:0.10.8 /uv /uvx /bin/
 ENV UV_LINK_MODE=copy UV_NO_BUILD_ISOLATION=1
 # Installed system wide packages because the uv python does not have some .so's available which we need for usd python bindings
 #RUN uv python install 3.12
+
+# Install Doxygen
+COPY --chown=${DEVELOPER_UID}:${DEVELOPER_UID} --from=doxygen /opt/doxygen /opt/doxygen
+RUN chmod +x /opt/doxygen/bin/*
+ENV PATH="/opt/doxygen/bin:$PATH"
 
 # Create Ubuntu User
 ARG DEVELOPER_UID=1000

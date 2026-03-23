@@ -4,7 +4,7 @@ SCRIPT_DIR=$(dirname $0)
 REPO_DIR=$(realpath $CURRENT_DIR/../..)
 
 # build dockerfiles
-$REPO_DIR/docker/nvidia_openusd-2508_py312/build.sh
+$REPO_DIR/docker/doxygen/build.sh
 
 # allow x11 in docker to forward gui to host
 xhost +local:docker
