@@ -11,6 +11,7 @@
 				"ms-python.python",
 				"ms-vscode-remote.remote-containers",
 				"ms-vscode-remote.remote-ssh",
+				"chrisdias.vscode-opennewinstance"
 			],
 			"settings": {
 				"terminal.integrated.defaultProfile.linux": "zsh",
@@ -23,7 +24,8 @@
 						"path": "/usr/bin/zsh"
 					}
 				},
-				"python.analysis.stubPath": "/home/developer/OpenUSD-Workbench/python/stubs"
+				"python.analysis.stubPath": "/home/developer/OpenUSD-Workbench/python/stubs",
+				"python.terminal.activateEnvironment": false
 			}
 		}
 	},

@@ -11,7 +11,9 @@
 				"marlongerson.jetbrains-icons",
 				"llvm-vs-code-extensions.vscode-clangd",
 				"llvm-vs-code-extensions.lldb-dap",
-				"xaver.clang-format"
+				"xaver.clang-format",
+				"ms-python.python",
+				"chrisdias.vscode-opennewinstance"
 			],
 			"settings": {
 				"terminal.integrated.defaultProfile.linux": "zsh",
@@ -23,7 +25,9 @@
 					"zsh": {
 						"path": "/usr/bin/zsh"
 					}
-				}
+				},
+				"python.analysis.stubPath": "/home/developer/OpenUSD-Workbench/python/stubs",
+				"python.terminal.activateEnvironment": false
 			}
 		}
 	},
