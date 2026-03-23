@@ -32,6 +32,67 @@ PYTHON_OBJECT_RE = re.compile(
 # Use id()-based lookup instead — membership checks are identity-based anyway.
 _builtins_ids = frozenset(id(v) for v in _builtins_mod.__dict__.values())
 
+# Names that are valid Python identifiers but are not real modules — they come
+# from C++ type conversions (e.g. TfToken → str) leaking into the import logic.
+_BUILTIN_TYPE_NAMES = frozenset({
+    'str', 'int', 'float', 'bool', 'bytes', 'complex', 'list', 'dict',
+    'tuple', 'set', 'frozenset', 'None', 'type', 'object',
+})
+
+
+def _is_valid_module_name(name):
+    """Return True if *name* looks like a valid dotted Python module path.
+
+    Rejects things like ``]``, ``str``, empty strings, and anything that
+    isn't a dotted sequence of identifiers.
+    """
+    if not name:
+        return False
+    parts = name.split('.')
+    return all(p.isidentifier() and p not in _BUILTIN_TYPE_NAMES for p in parts)
+
+
+# ---------------------------------------------------------------------------
+# Boost.Python docstring signature parser
+# ---------------------------------------------------------------------------
+# Boost.Python generates docstrings in this format:
+#   FuncName( (Type)arg1 [, (Type)arg2 [= default]]) -> ReturnType :
+#       Description...
+#
+# Multiple overloads are concatenated with blank lines between them.
+
+_BOOST_SIG_RE = re.compile(
+    r'^(\w+)\s*\((.*?)\)\s*->\s*(\S+)\s*:?\s*$'
+)
+_BOOST_ARG_RE = re.compile(
+    r'\(\s*(\w[\w.]*)\s*\)\s*(\w+)(?:\s*=\s*(\S+))?'
+)
+
+
+def _parse_boost_python_signatures(doc):
+    """Parse Boost.Python-style docstring signatures.
+
+    Returns a list of dicts with 'args' and 'result' keys (same format as
+    the doxygen type_data signatures), or None if nothing could be parsed.
+    """
+    if not doc:
+        return None
+    signatures = []
+    for line in doc.split('\n'):
+        line = line.strip()
+        m = _BOOST_SIG_RE.match(line)
+        if m:
+            _func_name, argstr, result_type = m.groups()
+            args = []
+            for am in _BOOST_ARG_RE.finditer(argstr):
+                arg_type, arg_name, default = am.groups()
+                arg = {'name': arg_name, 'type': arg_type}
+                if default is not None:
+                    arg['default'] = default
+                args.append(arg)
+            signatures.append({'args': args, 'result': result_type})
+    return signatures if signatures else None
+
 verbose = False
 
 
@@ -922,8 +983,9 @@ class StubDoc(Doc):
                 elif verbose:
                     print("newmodname", newmodname, realmodule, self.maybe_modules)
                 if missing:
-                    self.missing_modules.add(realmodule)
-                    self.add_to_module_map(realmodule, realmodule)
+                    if _is_valid_module_name(realmodule):
+                        self.missing_modules.add(realmodule)
+                        self.add_to_module_map(realmodule, realmodule)
             if newmodname:
                 realname = newmodname + '.' + realname
                 if consume_import and not import_text:
@@ -1126,8 +1188,23 @@ class StubDoc(Doc):
             args, varargs, varkw, defaults = inspect.getfullargspec(obj)[:4]  # was: getargspec
             return inspect.formatargspec(
                 args, varargs, varkw, defaults, formatvalue=self.formatvalue)
-        else:
-            return self.UNKNOWN_SIGNATURE
+        # For C extensions / builtins: try inspect.signature() (works for
+        # many Boost.Python and pybind11 types in Python 3.10+)
+        try:
+            sig = inspect.signature(obj)
+            return str(sig)
+        except (ValueError, TypeError):
+            pass
+        # Try parsing Boost.Python-style docstrings as a last resort
+        boost_sigs = _parse_boost_python_signatures(
+            getattr(obj, '__doc__', None))
+        if boost_sigs:
+            sig = boost_sigs[0]
+            args = []
+            for arg in sig['args']:
+                args.append(arg['name'])
+            return '(%s)' % ', '.join(args)
+        return self.UNKNOWN_SIGNATURE
 
     def _add_docs(self, obj, decl, skipdocs):
         if skipdocs:
@@ -1232,6 +1309,10 @@ class StubDoc(Doc):
         return line
 
     def import_mod_text(self, currmodule, importmodule, asname):
+        # Reject invalid module names that can leak from C++ type conversions
+        # (e.g. ']' from List[...] splitting, 'str' from TfToken→str)
+        if asname != '*' and not _is_valid_module_name(importmodule):
+            return ''
         ispkg = hasattr(currmodule, '__path__')
         currname = currmodule.__name__
 
@@ -1438,6 +1519,15 @@ class PEP484StubDoc(StubDoc):
                       parents + [name]))
                 print(doc)
                 sigs = None
+
+        # If we have no doxygen data, try parsing Boost.Python docstrings.
+        # These contain machine-readable signatures like:
+        #   GetStageUpAxis( (Stage)stage) -> str :
+        if sigs is None:
+            boost_sigs = _parse_boost_python_signatures(
+                getattr(obj, '__doc__', None))
+            if boost_sigs:
+                sigs = boost_sigs
 
         if sigs is None or len(sigs) == 1:
             if sigs is None:

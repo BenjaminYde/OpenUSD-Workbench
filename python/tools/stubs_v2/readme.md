@@ -1,1 +1,0 @@
-./python/tools/stubs_v2/usdstubgen.py submodules/OpenUSD/build/docs/doxy_xml submodules/OpenUSD submodules/OpenUSD/build/lib/python

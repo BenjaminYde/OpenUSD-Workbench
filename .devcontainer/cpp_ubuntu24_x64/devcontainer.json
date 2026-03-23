@@ -26,7 +26,7 @@
 						"path": "/usr/bin/zsh"
 					}
 				},
-				"python.analysis.stubPath": "/home/developer/OpenUSD-Workbench/python/stubs",
+				"python.analysis.stubPath": "/home/developer/OpenUSD-Workbench/python/pyi",
 				"python.terminal.activateEnvironment": false
 			}
 		}
