@@ -1,30 +1,29 @@
-import pxr.Usd
-import pxr.UsdGeom
-import pxr.Gf
+#! /usr/bin/env python3
+
+from pxr import Usd, Gf, UsdGeom
 import time
-import pxr
 
 def create_usd_file(filename):
     # Create a new stage with ASCII format
-    stage = pxr.Usd.Stage.CreateNew(filename)
+    stage = Usd.Stage.CreateNew(filename)
     
     # Define a Cube primitive at the root layer
-    cube = pxr.UsdGeom.Cube.Define(stage, '/movingCube')
+    cube = UsdGeom.Cube.Define(stage, '/movingCube')
     cube.CreateSizeAttr(1.0)
     
     # Save the initial setup
     stage.GetRootLayer().Save()
     return stage
 
-def animate_cube(stage: pxr.Usd.Stage, velocity=0.1, num_frames=100, frame_duration=1.0):
+def animate_cube(stage, velocity=0.1, num_frames=100, frame_duration=1.0):
     # Setup transform operations for the cube
-    xform = pxr.UsdGeom.Xformable(stage.GetPrimAtPath('/movingCube'))
+    xform = UsdGeom.Xformable(stage.GetPrimAtPath('/movingCube'))
     translate_op = xform.AddTranslateOp()
     
     for frame in range(1, num_frames + 1):
         # Calculate translation based on velocity and time
         translation = velocity * frame * frame_duration
-        translate_op.Set(pxr.Gf.Vec3f(translation, 0, 0), pxr.Usd.TimeCode(frame))
+        translate_op.Set(Gf.Vec3f(translation, 0, 0), Usd.TimeCode(frame))
         
         # Explicitly save after each update
         stage.GetRootLayer().Save()

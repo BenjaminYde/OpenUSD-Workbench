@@ -1,14 +1,12 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 
-import pxr.Usd
-import pxr.UsdGeom
-import pxr.Gf
+from pxr import Usd, Gf, UsdGeom
 import time
 import math
 
 def update_cube3_position(new_filename, time_step):
     # Open an existing USD stage and also create a session layer within the stage
-    stage = pxr.Usd.Stage.Open('cubes.usda')
+    stage = Usd.Stage.Open('cubes.usda')
     
     # Use the session layer that already exists in the stage
     session_layer = stage.GetSessionLayer()
@@ -18,14 +16,14 @@ def update_cube3_position(new_filename, time_step):
     
     # Fetch the Xformable prim at the path of Cube2
     cube3_path = '/Cube1/Cube2'
-    xform = pxr.UsdGeom.Xformable(stage.GetPrimAtPath(cube3_path))
+    xform = UsdGeom.Xformable(stage.GetPrimAtPath(cube3_path))
     if not xform:
         raise Exception(f"No Cube2 found at path: {cube3_path}")
     
     # Set the translation attribute directly
     translate_op = xform.GetTranslateOp()
     current_pos = translate_op.Get()
-    new_pos = current_pos + pxr.Gf.Vec3d(0, math.sin(float(time_step))/15, 0)
+    new_pos = current_pos + Gf.Vec3d(0, math.sin(float(time_step))/15, 0)
     translate_op.Set(new_pos)
     
     # Save changes to a new file from the session layer
@@ -43,4 +41,3 @@ def main():
 if __name__ == "__main__":
     main()
     # usdview --sessionLayer ./cubes_session_layer.usda  ./cubes.usda
-
