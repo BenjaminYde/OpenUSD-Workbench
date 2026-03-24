@@ -1,0 +1,146 @@
+FROM nvidia_openusd-2508_py312:latest AS nvidia_openusd
+
+# UBUNTU BASE
+FROM ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive 
+ARG DEVELOPER_UID=1000
+LABEL Author="BenjaminYde"
+
+# Install Development APT Packages
+RUN --mount=type=cache,target=/var/cache/apt \
+    apt -qq update && \
+    apt -qq install -y --no-install-recommends \
+        # general
+        apt-utils \
+        lsb-release \
+        # git
+        git \
+        git-lfs \
+        # files & io
+        parallel \
+        rsync \
+        unzip \
+        # networking & remote
+        curl \
+        ssh \
+        openssh-client \
+        wget \
+        xdg-utils \
+        gpg-agent \
+        # cpp
+        build-essential \
+        ccache \
+        autoconf \
+        automake \
+        dos2unix \
+        g++ \
+        gcc \
+        gdb \
+        make \
+        ninja-build \
+        software-properties-common \
+        # permissions
+        acl \
+        sudo \
+        gnupg \
+        ca-certificates \
+        # terminal
+        bash-completion \
+        nano \
+        zsh \
+        && \
+    # cleanup
+    apt -qq clean && \
+    apt -qq autoclean && \
+    apt -qq remove && \
+    apt -qq autoremove -y && \
+    rm -rf /var/lib/apt/lists
+
+# Install x11 & rendering dependencies
+RUN apt-get update && apt-get install -y --install-recommends \
+        # open gl
+        libegl1-mesa-dev \    
+        libgl1-mesa-dev \
+        libgles2-mesa-dev \
+        # x general
+        libxrandr-dev \
+        libxinerama-dev \
+        libxcursor-dev \
+        xauth \
+        libx11-dev \
+        libx11-xcb-dev \
+        libxi-dev \
+        libxcb1-dev \
+        libxcb-randr0-dev \
+        libxfixes-dev \
+        libxss-dev \
+        libxkbcommon-dev \
+        libxt-dev \
+        # other
+        libxcb-shape0 \
+        libdbus-1-3 \
+        libxkbcommon-x11-0 \
+        libxcb-icccm4 \
+        libxcb-image0 \
+        libxcb-keysyms1 \
+        libxcb-randr0 \
+        libxcb-render-util0 \
+        libxcb-xinerama0 \
+        libxcb-xinput0 \
+        libxcb-xfixes0 \
+        libxcb-cursor0 \
+        libfontconfig1 \
+    && \
+    # cleanup
+    apt -qq clean && \
+    apt -qq autoclean && \
+    apt -qq remove && \
+    apt -qq autoremove -y && \
+    rm -rf /var/lib/apt/lists
+
+# Install OpenUSD
+COPY --chown=${DEVELOPER_UID}:${DEVELOPER_UID} --from=nvidia_openusd /opt/usd_2508_py312 /opt/usd_2508_py312
+RUN chmod +x /opt/usd_2508_py312/bin/*
+
+# Install Python (UV)
+COPY --from=ghcr.io/astral-sh/uv:0.10.8 /uv /uvx /bin/
+ENV UV_LINK_MODE=copy UV_NO_BUILD_ISOLATION=1
+RUN uv python install 3.12
+
+# Create Ubuntu User
+RUN deluser --remove-home ubuntu && \
+useradd --create-home --user-group --groups sudo --uid ${DEVELOPER_UID} developer && \
+printf "\ndeveloper ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+USER developer
+ENV USER="developer" HOME="/home/developer"
+WORKDIR $HOME
+
+# Setup python environment
+RUN --mount=type=cache,target=$HOME/.cache/uv,uid=${DEVELOPER_UID} \
+uv venv --python /usr/bin/python3.12 $HOME/py312 && \
+. $HOME/py312/bin/activate && \
+uv pip install uv_build==0.10.8
+ENV PATH="$HOME/py312/bin:$PATH"
+ENV VIRTUAL_ENV="$HOME/py312"
+
+RUN \
+    # python
+    ## make sure uv knows usd pre-built python
+    export usd_pth="$HOME/py312/lib/python3.12/site-packages/usd.pth" && \
+    touch $usd_pth && \
+    echo '/opt/usd_2508_py312/lib/python' >> $usd_pth && \
+    echo '/opt/usd_2508_py312/pip-packages' >> $usd_pth
+
+# Install ZSH
+RUN sudo apt install -y zsh && \
+    sudo chsh -s /usr/bin/zsh && \
+    # Install oh my zsh
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" && \
+    # configure .zshrc
+    cd ~ && \
+    touch .zshrc && \
+    sed -i 's/ZSH_THEME=.*/ZSH_THEME="eastwood"/' .zshrc && \
+    echo "ZSH Installed"
+
+
+ENTRYPOINT [ "/usr/bin/zsh" ]

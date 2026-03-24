@@ -1,18 +1,16 @@
 {
-	"name": "openusd-workbench_cpp_ubuntu24_x64",
+	"name": "openusd-workbench_python_ubuntu24_x64",
 	"dockerComposeFile": "docker-compose.yaml",
 	"service": "devcontainer",
 	"workspaceFolder": "/home/developer/OpenUSD-Workbench",
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"ms-vscode.cmake-tools",
 				"mhutchie.git-graph",
 				"marlongerson.jetbrains-icons",
-				"llvm-vs-code-extensions.vscode-clangd",
-				"llvm-vs-code-extensions.lldb-dap",
-				"xaver.clang-format",
 				"ms-python.python",
+				"ms-vscode-remote.remote-containers",
+				"ms-vscode-remote.remote-ssh",
 				"chrisdias.vscode-opennewinstance"
 			],
 			"settings": {
@@ -31,6 +29,6 @@
 			}
 		}
 	},
-	"initializeCommand": "xhost +local:docker",
-	"onCreateCommand": ".devcontainer/cpp_ubuntu24_x64/boostrap_container.sh"
+	"initializeCommand": ".devcontainer/python_ubuntu24_x64/boostrap_host.sh",
+	"onCreateCommand": ".devcontainer/python_ubuntu24_x64/boostrap_container.sh"
 }

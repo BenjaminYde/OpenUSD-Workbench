@@ -13,8 +13,8 @@ export PATH="$OPENUSD_ROOT/build/bin:$PATH"
 export HGI_ENABLE_VULKAN=1
 
 # OpenUSD plugins
-export PYTHONPATH="$REPO/projects/plugins/:$PYTHONPATH"
-export PXR_PLUGINPATH_NAME="$REPO/projects/plugins/usdview_auto_reloader:$PXR_PLUGINPATH_NAME"
+export PYTHONPATH="$REPO/plugins/:$PYTHONPATH"
+export PXR_PLUGINPATH_NAME="$REPO/plugins/usdview_auto_reloader:$PXR_PLUGINPATH_NAME"
 
 # Emscripten SDK
 source "/home/developer/emsdk/emsdk_env.sh" >> /dev/null 2>&1

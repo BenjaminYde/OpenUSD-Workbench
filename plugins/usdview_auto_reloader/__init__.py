@@ -48,7 +48,7 @@ class AutoReloaderContainer(plugin.PluginContainer):
         try:
             from PySide2 import QtCore
         except ImportError:
-            from PySide import QtCore
+            from PySide6 import QtCore
 
         IS_ENABLED = not IS_ENABLED
 
